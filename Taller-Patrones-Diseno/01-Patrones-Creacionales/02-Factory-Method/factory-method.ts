@@ -35,6 +35,8 @@
  * EJECUTAR: deno run Taller-Patrones-Diseno/01-Patrones-Creacionales/02-Factory-Method/factory-method.ts
  */
 
+import { COLORS } from "../../../helpers/colors.ts";
+
 // Producto: lo único que conoce planDelivery. Gracias a esta interfaz,
 // Logistics no depende de camiones ni barcos concretos.
 interface Transport {
@@ -48,7 +50,9 @@ class Truck implements Transport {
   name = "Camión";
 
   deliver(origin: string, destination: string, cargoKg: number): string {
-    return `${this.name}: ${cargoKg} kg por carretera de ${origin} a ${destination} en contenedor terrestre`;
+    return `${this.name}: ${
+      cargoKg.toLocaleString("es-CO")
+    } kg por carretera de ${origin} a ${destination} en contenedor terrestre`;
   }
 }
 
@@ -57,7 +61,9 @@ class Ship implements Transport {
   name = "Barco";
 
   deliver(origin: string, destination: string, cargoKg: number): string {
-    return `${this.name}: ${cargoKg} kg por mar de ${origin} a ${destination} en contenedor marítimo`;
+    return `${this.name}: ${
+      cargoKg.toLocaleString("es-CO")
+    } kg por mar de ${origin} a ${destination} en contenedor marítimo`;
   }
 }
 
@@ -92,3 +98,39 @@ class SeaLogistics extends Logistics {
     return new Ship();
   }
 }
+
+// Cliente: recibe el tipo ABSTRACTO Logistics y solo llama a planDelivery.
+// No sabe ni le importa si detrás hay un camión o un barco: lo decide el
+// creador concreto que le pasan. Eso demuestra el desacoplamiento del patrón.
+function dispatch(
+  logistics: Logistics,
+  origin: string,
+  destination: string,
+  cargoKg: number,
+): void {
+  console.log(
+    `Creador concreto: %c${logistics.constructor.name}`,
+    COLORS.yellow,
+  );
+  console.log(
+    `%c${logistics.planDelivery(origin, destination, cargoKg)}\n`,
+    COLORS.green,
+  );
+}
+
+function main() {
+  console.log("%c=== Logística con Factory Method ===\n", COLORS.red);
+
+  console.log("%cEnvío nacional por carretera", COLORS.blue);
+  dispatch(new RoadLogistics(), "Cali", "Bogotá", 1_200);
+
+  console.log("%cEnvío internacional por mar", COLORS.blue);
+  dispatch(new SeaLogistics(), "Buenaventura", "Shanghái", 25_000);
+
+  console.log(
+    "%cPara enviar en avión basta con crear Plane + AirLogistics, sin tocar planDelivery ni dispatch.",
+    COLORS.purple,
+  );
+}
+
+main();
