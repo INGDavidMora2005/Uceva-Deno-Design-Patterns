@@ -66,8 +66,8 @@ class Logger {
   private log(level: string, message: string, color: string): void {
     // El número consecutivo demuestra que el contador es común a toda
     // la aplicación.
-    const entry: string =
-      `#${this.entries.length + 1} [${level.toUpperCase()}] ${message}`;
+    const position: number = this.entries.length + 1;
+    const entry: string = `#${position} [${level.toUpperCase()}] ${message}`;
 
     this.entries.push(entry);
     console.log("%c" + entry, color);
