@@ -45,3 +45,26 @@ interface TemperatureSensor {
   // Temperatura actual siempre en grados Celsius.
   getCelsius(): number;
 }
+
+// Adaptado #1: sensor importado de EE. UU. Es código de un tercero y NO se
+// puede modificar: no implementa TemperatureSensor, se identifica con
+// "model" y reporta en °F con su propio método readFahrenheit().
+class FahrenheitSensor {
+  // La lectura llega fija por constructor para que la demo sea verificable.
+  constructor(readonly model: string, private readonly fahrenheit: number) {}
+
+  readFahrenheit(): number {
+    return this.fahrenheit;
+  }
+}
+
+// Adaptado #2: sensor de laboratorio, también de un tercero y sin poder
+// modificarse. Su forma es otra: getReading() devuelve un objeto con el
+// valor en Kelvin y su unidad, en vez de un número.
+class KelvinSensor {
+  constructor(readonly serial: string, private readonly kelvin: number) {}
+
+  getReading(): { value: number; unit: "K" } {
+    return { value: this.kelvin, unit: "K" };
+  }
+}
