@@ -27,6 +27,8 @@
  * EJECUTAR: deno run Taller-Patrones-Diseno/01-Patrones-Creacionales/06-Singleton/singleton.ts
  */
 
+import { COLORS } from "../../../helpers/colors.ts";
+
 /**
  * SINGLETON del patrón: una única instancia compartida con acceso
  * global. Toda la aplicación usa el mismo Logger y su mismo estado.
@@ -59,5 +61,29 @@ class Logger {
 
   getCount(): number {
     return this.entries.length;
+  }
+
+  private log(level: string, message: string, color: string): void {
+    // El número consecutivo demuestra que el contador es común a toda
+    // la aplicación.
+    const entry: string =
+      `#${this.entries.length + 1} [${level.toUpperCase()}] ${message}`;
+
+    this.entries.push(entry);
+    console.log("%c" + entry, color);
+  }
+
+  // Métodos de registro (comportamiento de negocio): todos escriben en
+  // el MISMO historial porque la instancia de Logger es única.
+  info(message: string): void {
+    this.log("info", message, COLORS.blue);
+  }
+
+  warn(message: string): void {
+    this.log("warn", message, COLORS.orange);
+  }
+
+  error(message: string): void {
+    this.log("error", message, COLORS.red);
   }
 }
