@@ -58,3 +58,34 @@ class Pizza {
       `borde relleno: ${crust}`;
   }
 }
+
+/**
+ * INTERFAZ BUILDER del patrón: declara los pasos de construcción que
+ * todo constructor concreto debe implementar para armar una pizza.
+ *
+ * Los métodos de configuración devuelven this para encadenar pasos,
+ * mientras que build() devuelve Pizza porque entrega el producto ya
+ * terminado.
+ */
+interface PizzaBuilder {
+  /** Reinicia la pizza en construcción para empezar de nuevo. */
+  reset(): this;
+
+  /** Define el tamaño de la pizza. */
+  setSize(size: string): this;
+
+  /** Define el tipo de masa de la pizza. */
+  setDough(dough: string): this;
+
+  /** Define la salsa base de la pizza. */
+  setSauce(sauce: string): this;
+
+  /** Agrega un ingrediente adicional a la pizza. */
+  addTopping(topping: string): this;
+
+  /** Indica si la pizza lleva el borde relleno. */
+  setStuffedCrust(stuffedCrust: boolean): this;
+
+  /** Entrega la pizza terminada. */
+  build(): Pizza;
+}
