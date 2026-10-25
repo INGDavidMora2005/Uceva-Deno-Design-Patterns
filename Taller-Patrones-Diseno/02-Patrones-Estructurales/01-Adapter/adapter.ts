@@ -37,3 +37,11 @@
  *
  * EJECUTAR: deno run Taller-Patrones-Diseno/02-Patrones-Estructurales/01-Adapter/adapter.ts
  */
+
+// Interfaz objetivo: es lo único que conoce el monitor de la bodega. Todo
+// sensor, propio o de terceros, debe verse así para poder ser vigilado.
+interface TemperatureSensor {
+  name: string;
+  // Temperatura actual siempre en grados Celsius.
+  getCelsius(): number;
+}
