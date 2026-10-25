@@ -32,3 +32,16 @@
  *
  * EJECUTAR: deno run Taller-Patrones-Diseno/03-Patrones-Comportamiento/08-Strategy/strategy.ts
  */
+
+/**
+ * Strategy: contrato común que cumplen todos los métodos de envío.
+ * Existe para que Cart dependa solo de esta interfaz y no de cada fórmula:
+ * así puede usar cualquier método de envío (actual o futuro) sin saber cómo
+ * calcula su costo, y cambiarlo en tiempo de ejecución.
+ */
+interface ShippingStrategy {
+  // Nombre legible del método de envío, para mostrarlo al cliente.
+  name: string;
+  // Cada estrategia decide cómo usar el subtotal y el peso en su fórmula.
+  calculateCost(subtotal: number, weightKg: number): number;
+}
