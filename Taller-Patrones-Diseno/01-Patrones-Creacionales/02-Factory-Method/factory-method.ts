@@ -75,3 +75,20 @@ abstract class Logistics {
     return `Transporte asignado: ${transport.name}\n  ${result}`;
   }
 }
+
+// Creador concreto: envíos nacionales por carretera. Es el ÚNICO lugar donde
+// se decide crear un camión; agregar AirLogistics + Plane no tocaría
+// planDelivery.
+class RoadLogistics extends Logistics {
+  protected override createTransport(): Transport {
+    return new Truck();
+  }
+}
+
+// Creador concreto: envíos internacionales por mar. Es el ÚNICO lugar donde
+// se decide crear un barco.
+class SeaLogistics extends Logistics {
+  protected override createTransport(): Transport {
+    return new Ship();
+  }
+}
