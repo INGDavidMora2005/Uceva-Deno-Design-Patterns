@@ -149,3 +149,67 @@ class MargaritaBuilder implements PizzaBuilder {
     return finishedPizza;
   }
 }
+
+/**
+ * SEGUNDO CONSTRUCTOR CONCRETO: implementa la misma interfaz
+ * PizzaBuilder, pero arma una pizza con otra receta base.
+ *
+ * Esto demuestra la ventaja del patrón: el código cliente (el
+ * director) puede usar cualquiera de los dos builders sin cambiar,
+ * porque solo recibe un PizzaBuilder.
+ */
+class CarnivoraBuilder implements PizzaBuilder {
+  private pizza: Pizza = new Pizza();
+
+  constructor() {
+    this.reset();
+  }
+
+  /**
+   * Aplica la receta base de la carnívora: masa gruesa, salsa
+   * barbacoa, tres ingredientes y borde relleno.
+   */
+  reset(): this {
+    this.pizza = new Pizza();
+    this.pizza.dough = "gruesa";
+    this.pizza.sauce = "barbacoa";
+    this.pizza.toppings = ["pepperoni", "jamón", "tocino"];
+    this.pizza.stuffedCrust = true;
+    return this;
+  }
+
+  setSize(size: string): this {
+    this.pizza.size = size;
+    return this;
+  }
+
+  setDough(dough: string): this {
+    this.pizza.dough = dough;
+    return this;
+  }
+
+  setSauce(sauce: string): this {
+    this.pizza.sauce = sauce;
+    return this;
+  }
+
+  addTopping(topping: string): this {
+    this.pizza.toppings.push(topping);
+    return this;
+  }
+
+  setStuffedCrust(stuffedCrust: boolean): this {
+    this.pizza.stuffedCrust = stuffedCrust;
+    return this;
+  }
+
+  /**
+   * Guarda la pizza terminada y reinicia el builder para poder
+   * reutilizarlo sin mezclar ingredientes.
+   */
+  build(): Pizza {
+    const finishedPizza: Pizza = this.pizza;
+    this.reset();
+    return finishedPizza;
+  }
+}
