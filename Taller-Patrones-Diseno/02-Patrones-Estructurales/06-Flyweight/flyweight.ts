@@ -94,3 +94,63 @@ class TreeTypeFactory {
     return TreeTypeFactory.cache.size;
   }
 }
+
+/**
+ * CONTEXTO del patrón: guarda solo el estado extrínseco (su posición
+ * x, y) y una referencia al TreeType compartido, por eso cada árbol
+ * ocupa muy poco.
+ */
+class Tree {
+  readonly x: number;
+  readonly y: number;
+  readonly type: TreeType;
+
+  constructor(x: number, y: number, type: TreeType) {
+    this.x = x;
+    this.y = y;
+    this.type = type;
+  }
+
+  draw(): string {
+    return this.type.draw(this.x, this.y);
+  }
+}
+
+/**
+ * CLIENTE del patrón: planta los árboles pidiendo siempre el tipo a
+ * la fábrica, de modo que miles de árboles reutilizan unos pocos
+ * TreeType.
+ */
+class Forest {
+  private trees: Tree[] = [];
+
+  plantTree(
+    x: number,
+    y: number,
+    name: string,
+    color: string,
+    texture: string,
+  ): void {
+    const type: TreeType = TreeTypeFactory.getTreeType(name, color, texture);
+    const tree: Tree = new Tree(x, y, type);
+    this.trees.push(tree);
+  }
+
+  /**
+   * Devuelve un arreglo de textos y no imprime, para no llenar la
+   * consola con miles de líneas.
+   */
+  draw(): string[] {
+    const drawings: string[] = [];
+
+    for (const tree of this.trees) {
+      drawings.push(tree.draw());
+    }
+
+    return drawings;
+  }
+
+  getTreeCount(): number {
+    return this.trees.length;
+  }
+}
