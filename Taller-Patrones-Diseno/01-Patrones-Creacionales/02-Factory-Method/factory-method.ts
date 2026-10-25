@@ -60,3 +60,18 @@ class Ship implements Transport {
     return `${this.name}: ${cargoKg} kg por mar de ${origin} a ${destination} en contenedor marítimo`;
   }
 }
+
+// Creador: define el proceso común de la entrega. Es abstracta porque por sí
+// sola no sabe qué transporte usar; esa decisión es de cada subclase.
+abstract class Logistics {
+  // Método fábrica: cada subclase decide qué transporte crear.
+  protected abstract createTransport(): Transport;
+
+  // Lógica de negocio común: NO cambia cuando se agrega un nuevo tipo de
+  // logística, porque solo usa la interfaz Transport.
+  planDelivery(origin: string, destination: string, cargoKg: number): string {
+    const transport = this.createTransport();
+    const result = transport.deliver(origin, destination, cargoKg);
+    return `Transporte asignado: ${transport.name}\n  ${result}`;
+  }
+}
