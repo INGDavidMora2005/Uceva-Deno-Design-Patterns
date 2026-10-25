@@ -33,6 +33,8 @@
  * EJECUTAR: deno run Taller-Patrones-Diseno/03-Patrones-Comportamiento/02-Command/command.ts
  */
 
+import { COLORS } from "../../../helpers/colors.ts";
+
 // Interfaz Command: todo comando sabe ejecutarse y revertirse. Es lo único
 // que conoce el invocador (History), así puede deshacer cualquier acción sin
 // saber qué hace cada una.
@@ -144,16 +146,75 @@ class History {
   execute(command: Command): void {
     command.execute();
     this.undoStack.push(command);
+    // Un comando NUEVO limpia la pila de rehacer: es el comportamiento
+    // estándar de los editores, porque lo deshecho ya no encaja con la nueva
+    // historia de acciones.
+    this.redoStack = [];
+    console.log(`\n%cEjecutar: ${command.description}`, COLORS.green);
   }
 
   // Revierte el último comando y lo guarda para poder rehacerlo.
   undo(): void {
     const command = this.undoStack.pop();
     if (!command) {
-      console.log("No hay nada para deshacer.");
+      console.log("\n%cNo hay nada para deshacer.", COLORS.red);
       return;
     }
     command.undo();
     this.redoStack.push(command);
+    console.log(`\n%cDeshacer: ${command.description}`, COLORS.yellow);
+  }
+
+  // Vuelve a ejecutar el último comando deshecho. Llama a command.execute()
+  // directamente (no a this.execute) para no limpiar la pila de rehacer.
+  redo(): void {
+    const command = this.redoStack.pop();
+    if (!command) {
+      console.log("\n%cNo hay nada para rehacer.", COLORS.red);
+      return;
+    }
+    command.execute();
+    this.undoStack.push(command);
+    console.log(`\n%cRehacer: ${command.description}`, COLORS.cyan);
   }
 }
+
+function main() {
+  console.log("%c=== Lista de tareas con Command ===", COLORS.purple);
+  const list = new TodoList();
+  const history = new History();
+
+  // Ejecuta una acción y luego imprime cómo quedó la lista.
+  const step = (action: () => void) => {
+    action();
+    console.log(list.toText());
+  };
+
+  const addMilk = new AddTaskCommand(list, "Comprar leche");
+  const addStudy = new AddTaskCommand(list, "Estudiar patrones");
+  const addReport = new AddTaskCommand(list, "Entregar taller");
+  step(() => history.execute(addMilk));
+  step(() => history.execute(addStudy));
+  step(() => history.execute(addReport));
+
+  const reportId = addReport.getTaskId();
+  const title = "Entregar taller";
+  step(() => history.execute(new CompleteTaskCommand(list, reportId, title)));
+  console.log(`Id de "${title}": %c${reportId}`, COLORS.blue);
+
+  // Deshacer 2 veces: el completar y el último agregar.
+  step(() => history.undo());
+  step(() => history.undo());
+
+  // Rehacer 2 veces: la tarea vuelve con el MISMO id y completada otra vez.
+  step(() => history.redo());
+  step(() => history.redo());
+  const redoneId = addReport.getTaskId();
+  console.log(`Id de "${title}" tras rehacer: %c${redoneId}`, COLORS.blue);
+
+  // Un comando nuevo limpia la pila de rehacer.
+  step(() => history.execute(new AddTaskCommand(list, "Llamar al médico")));
+  step(() => history.redo());
+}
+
+main();
