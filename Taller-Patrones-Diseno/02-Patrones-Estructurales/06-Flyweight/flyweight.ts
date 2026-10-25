@@ -64,3 +64,33 @@ class TreeType {
     return `${typeDescription} ${position}`;
   }
 }
+
+/**
+ * FÁBRICA DE FLYWEIGHTS del patrón: administra el caché y garantiza
+ * que no se creen dos TreeType iguales.
+ *
+ * Los clientes deben pedir los tipos a esta fábrica y nunca crearlos
+ * con new TreeType(...), así el compartir está garantizado.
+ */
+class TreeTypeFactory {
+  // El caché es un Map con clave compuesta para buscar rápido por la
+  // combinación exacta de nombre, color y textura.
+  private static cache: Map<string, TreeType> = new Map<string, TreeType>();
+
+  static getTreeType(name: string, color: string, texture: string): TreeType {
+    const key: string = [name, color, texture].join("|");
+
+    if (!TreeTypeFactory.cache.has(key)) {
+      const treeType: TreeType = new TreeType(name, color, texture);
+      TreeTypeFactory.cache.set(key, treeType);
+    }
+
+    return TreeTypeFactory.cache.get(key)!;
+  }
+
+  // Permite comprobar en la demo cuántos objetos pesados existen
+  // realmente frente a la cantidad de árboles.
+  static getTypesCount(): number {
+    return TreeTypeFactory.cache.size;
+  }
+}
