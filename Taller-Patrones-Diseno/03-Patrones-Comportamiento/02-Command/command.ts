@@ -49,10 +49,11 @@ class TodoList {
   private tasks = new Map<number, { title: string; done: boolean }>();
   private nextId = 1;
 
-  addTask(title: string): number {
-    const id = this.nextId++;
-    this.tasks.set(id, { title, done: false });
-    return id;
+  // Si recibe un id lo reutiliza; si no, asigna uno nuevo.
+  addTask(title: string, id?: number): number {
+    const taskId = id ?? this.nextId++;
+    this.tasks.set(taskId, { title, done: false });
+    return taskId;
   }
 
   removeTask(id: number): void {
@@ -77,5 +78,58 @@ class TodoList {
       return `  ${mark} ${task.title}`;
     });
     return lines.join("\n");
+  }
+}
+
+// Comando concreto: agregar una tarea. Guarda el id que le asigna la lista al
+// ejecutarse, porque es justo lo que necesita para deshacerse (eliminarla).
+class AddTaskCommand implements Command {
+  description: string;
+  // El id se conserva aunque se deshaga: al rehacer, la tarea vuelve con el
+  // MISMO id y así no se rompen comandos posteriores que dependen de ella
+  // (por ejemplo, un CompleteTaskCommand sobre esa tarea).
+  private taskId?: number;
+
+  constructor(private readonly list: TodoList, private readonly title: string) {
+    this.description = `Agregar "${title}"`;
+  }
+
+  execute(): void {
+    this.taskId = this.list.addTask(this.title, this.taskId);
+  }
+
+  undo(): void {
+    if (this.taskId === undefined) return;
+    this.list.removeTask(this.taskId);
+  }
+
+  // Permite crear otros comandos sobre la tarea que este agregó.
+  getTaskId(): number {
+    if (this.taskId === undefined) {
+      throw new Error("El comando aún no se ha ejecutado");
+    }
+    return this.taskId;
+  }
+}
+
+// Comando concreto: completar una tarea. Guarda el id de la tarea para poder
+// desmarcarla al deshacer, sin que el historial sepa cómo se hace.
+class CompleteTaskCommand implements Command {
+  description: string;
+
+  constructor(
+    private readonly list: TodoList,
+    private readonly taskId: number,
+    title: string,
+  ) {
+    this.description = `Completar "${title}"`;
+  }
+
+  execute(): void {
+    this.list.complete(this.taskId);
+  }
+
+  undo(): void {
+    this.list.uncomplete(this.taskId);
   }
 }
