@@ -87,3 +87,51 @@ class Logger {
     this.log("error", message, COLORS.red);
   }
 }
+
+function authModule(): void {
+  const logger: Logger = Logger.getInstance();
+  logger.info("Usuario autenticado");
+  logger.warn("Intento de acceso con contraseña antigua");
+}
+
+function paymentModule(): void {
+  const logger: Logger = Logger.getInstance();
+  logger.info("Pago iniciado");
+  logger.error("Pago rechazado: fondos insuficientes");
+}
+
+function main(): void {
+  console.log("%c=== 1. Una única instancia ===", COLORS.blue);
+
+  // Ambas referencias apuntan al mismo objeto porque getInstance()
+  // crea la instancia solo la primera vez.
+  const loggerA: Logger = Logger.getInstance();
+  const loggerB: Logger = Logger.getInstance();
+
+  const sameInstance: boolean = loggerA === loggerB;
+  console.log("¿loggerA y loggerB son la misma instancia?", sameInstance);
+
+  console.log("%c=== 2. Módulos distintos, mismo logger ===", COLORS.green);
+
+  // Aunque cada módulo pide su logger, todos comparten el historial
+  // y por eso la numeración continúa de forma consecutiva.
+  authModule();
+  paymentModule();
+
+  console.log("%c=== 3. Historial compartido ===", COLORS.purple);
+
+  // loggerB ve las entradas creadas por authModule y paymentModule:
+  // el estado pertenece a la instancia única, no a cada referencia.
+  const entries: readonly string[] = loggerB.getEntries();
+  const count: number = loggerB.getCount();
+
+  console.log("Cantidad de mensajes registrados:", count);
+  for (const entry of entries) {
+    console.log(entry);
+  }
+
+  // Escribir `new Logger()` desde fuera no compila porque el
+  // constructor es privado; esta es la garantía del Singleton.
+}
+
+main();
