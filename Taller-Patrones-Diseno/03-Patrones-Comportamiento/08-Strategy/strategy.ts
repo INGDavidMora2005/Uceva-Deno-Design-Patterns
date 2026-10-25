@@ -33,6 +33,8 @@
  * EJECUTAR: deno run Taller-Patrones-Diseno/03-Patrones-Comportamiento/08-Strategy/strategy.ts
  */
 
+import { COLORS } from "../../../helpers/colors.ts";
+
 /**
  * Strategy: contrato común que cumplen todos los métodos de envío.
  * Existe para que Cart dependa solo de esta interfaz y no de cada fórmula:
@@ -46,11 +48,8 @@ interface ShippingStrategy {
   calculateCost(subtotal: number, weightKg: number): number;
 }
 
-/**
- * Estrategia concreta: envío estándar (tarifa base + costo por kg, gratis
- * desde cierto subtotal). Va en su propia clase para encapsular su fórmula:
- * si cambia la tarifa o la promoción, solo se toca esta clase y no el Cart.
- */
+// Estrategia concreta: tarifa base + costo por kg, gratis desde un subtotal.
+// Encapsula su fórmula: si cambia la tarifa, solo se toca esta clase.
 class StandardShipping implements ShippingStrategy {
   name = "Envío estándar";
   private readonly BASE_COST = 8_000;
@@ -63,11 +62,8 @@ class StandardShipping implements ShippingStrategy {
   }
 }
 
-/**
- * Estrategia concreta: envío exprés, más caro y sin envío gratis. Separarla
- * permite que conviva con las demás como otra opción intercambiable, sin
- * agregar condiciones nuevas dentro del Cart.
- */
+// Estrategia concreta: envío exprés, más caro y sin envío gratis. Es otra
+// opción intercambiable que no agrega condiciones nuevas dentro del Cart.
 class ExpressShipping implements ShippingStrategy {
   name = "Envío exprés";
   private readonly BASE_COST = 20_000;
@@ -78,11 +74,8 @@ class ExpressShipping implements ShippingStrategy {
   }
 }
 
-/**
- * Estrategia concreta: recoger en tienda, siempre gratis. Aunque su cálculo
- * es trivial, cumple el mismo contrato: así el Cart la trata igual que a las
- * otras y no necesita un caso especial para "sin envío".
- */
+// Estrategia concreta: recoger en tienda, siempre gratis. Cumple el mismo
+// contrato, así el Cart no necesita un caso especial para "sin envío".
 class PickupShipping implements ShippingStrategy {
   name = "Recoger en tienda";
   private readonly COST = 0;
@@ -91,3 +84,67 @@ class PickupShipping implements ShippingStrategy {
     return this.COST;
   }
 }
+
+const formatCOP = (value: number) => `$${value.toLocaleString("es-CO")} COP`;
+
+/**
+ * Contexto: guarda los productos y la estrategia de envío actual. No sabe
+ * calcular envíos a propósito: delega en ShippingStrategy, así no tiene
+ * if/switch por tipo de envío y no cambia al agregar un método nuevo.
+ */
+class Cart {
+  private items: { name: string; price: number; weightKg: number }[] = [];
+
+  constructor(private strategy: ShippingStrategy) {}
+
+  // Cambia el algoritmo de envío en tiempo de ejecución.
+  setStrategy(strategy: ShippingStrategy): void {
+    this.strategy = strategy;
+  }
+
+  addItem(name: string, price: number, weightKg: number): void {
+    this.items.push({ name, price, weightKg });
+    console.log(`Agregado: %c${name} (${formatCOP(price)})`, COLORS.green);
+  }
+
+  getSubtotal(): number {
+    return this.items.reduce((sum, item) => sum + item.price, 0);
+  }
+
+  getTotalWeight(): number {
+    return this.items.reduce((sum, item) => sum + item.weightKg, 0);
+  }
+
+  // Delega el cálculo del envío en la estrategia actual, sin if/switch.
+  checkout(): { subtotal: number; shipping: number; total: number } {
+    const subtotal = this.getSubtotal();
+    const weight = this.getTotalWeight();
+    const shipping = this.strategy.calculateCost(subtotal, weight);
+    const total = subtotal + shipping;
+    console.log(`\n%cCheckout con: ${this.strategy.name}`, COLORS.blue);
+    console.log(`  Subtotal: %c${formatCOP(subtotal)}`, COLORS.green);
+    console.log(`  Envío:    %c${formatCOP(shipping)}`, COLORS.yellow);
+    console.log(`  Total:    %c${formatCOP(total)}`, COLORS.purple);
+    return { subtotal, shipping, total };
+  }
+}
+
+function main() {
+  console.log("%c=== Costo de envío con Strategy ===", COLORS.red);
+  const cart = new Cart(new StandardShipping());
+  cart.addItem("Audífonos", 60_000, 0.5);
+  cart.addItem("Libro", 45_000, 1.5);
+  cart.addItem("Taza", 25_000, 0.5);
+  // El MISMO carrito da costos distintos según la estrategia.
+  cart.checkout();
+  cart.setStrategy(new ExpressShipping());
+  cart.checkout();
+  cart.setStrategy(new PickupShipping());
+  cart.checkout();
+  console.log("\n%c=== El subtotal supera 150.000 COP ===", COLORS.red);
+  cart.addItem("Morral", 40_000, 1);
+  cart.setStrategy(new StandardShipping());
+  cart.checkout();
+}
+
+main();
