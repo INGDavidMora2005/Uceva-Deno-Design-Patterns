@@ -33,10 +33,12 @@
  *   interfaces y unidades incompatibles.
  * - FahrenheitAdapter, KelvinAdapter: adaptadores; implementan
  *   TemperatureSensor y convierten la lectura de su sensor a °C.
- * - Monitor de la bodega: cliente; solo conoce TemperatureSensor.
+ * - ColdStorageMonitor: cliente; solo conoce TemperatureSensor.
  *
  * EJECUTAR: deno run Taller-Patrones-Diseno/02-Patrones-Estructurales/01-Adapter/adapter.ts
  */
+
+import { COLORS } from "../../../helpers/colors.ts";
 
 // Interfaz objetivo: es lo único que conoce el monitor de la bodega. Todo
 // sensor, propio o de terceros, debe verse así para poder ser vigilado.
@@ -103,3 +105,56 @@ class KelvinAdapter implements TemperatureSensor {
     return roundOneDecimal(reading.value - 273.15);
   }
 }
+
+// Cliente: el monitor de la bodega. Solo conoce TemperatureSensor, así que
+// trata igual a todos los sensores y no tiene if/switch por tipo ni
+// conversiones de unidades. Un sensor nuevo no obliga a modificarlo.
+class ColdStorageMonitor {
+  // Rango seguro para almacenar vacunas.
+  private readonly MIN_CELSIUS = 2;
+  private readonly MAX_CELSIUS = 8;
+
+  constructor(private readonly sensors: TemperatureSensor[]) {}
+
+  check(): void {
+    const range = `${this.MIN_CELSIUS} °C a ${this.MAX_CELSIUS} °C`;
+    console.log(
+      `\n%cRevisión del monitor (rango seguro: ${range})`,
+      COLORS.blue,
+    );
+
+    for (const sensor of this.sensors) {
+      const celsius = sensor.getCelsius();
+      const isSafe = celsius >= this.MIN_CELSIUS && celsius <= this.MAX_CELSIUS;
+      const status = isSafe ? "OK" : "ALERTA";
+      const color = isSafe ? COLORS.green : COLORS.red;
+      console.log(`  ${sensor.name}: ${celsius} °C %c${status}`, color);
+    }
+  }
+}
+
+function main() {
+  console.log("%c=== Bodega de cadena de frío con Adapter ===", COLORS.purple);
+
+  // Sensores de terceros, con sus interfaces y unidades originales.
+  const usaSensor = new FahrenheitSensor("TX-41", 41);
+  const labSensor = new KelvinSensor("LAB-284", 284.15);
+
+  console.log("\n%cLecturas originales (sin adaptar)", COLORS.blue);
+  const fahrenheit = usaSensor.readFahrenheit();
+  const reading = labSensor.getReading();
+  console.log(`  ${usaSensor.model}: %c${fahrenheit} °F`, COLORS.yellow);
+  console.log(
+    `  ${labSensor.serial}: %c${reading.value} ${reading.unit}`,
+    COLORS.yellow,
+  );
+
+  // Envueltos en adaptadores, ambos cumplen TemperatureSensor.
+  const monitor = new ColdStorageMonitor([
+    new FahrenheitAdapter(usaSensor),
+    new KelvinAdapter(labSensor),
+  ]);
+  monitor.check();
+}
+
+main();
