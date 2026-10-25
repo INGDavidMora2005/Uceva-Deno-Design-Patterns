@@ -32,3 +32,50 @@
  *
  * EJECUTAR: deno run Taller-Patrones-Diseno/03-Patrones-Comportamiento/02-Command/command.ts
  */
+
+// Interfaz Command: todo comando sabe ejecutarse y revertirse. Es lo único
+// que conoce el invocador (History), así puede deshacer cualquier acción sin
+// saber qué hace cada una.
+interface Command {
+  // Nombre legible de la acción, para mostrarlo en la demo.
+  description: string;
+  execute(): void;
+  undo(): void;
+}
+
+// Receptor: la lista de tareas sabe hacer el trabajo real. No sabe nada de
+// comandos ni de historial; los comandos la usan para cumplir cada acción.
+class TodoList {
+  private tasks = new Map<number, { title: string; done: boolean }>();
+  private nextId = 1;
+
+  addTask(title: string): number {
+    const id = this.nextId++;
+    this.tasks.set(id, { title, done: false });
+    return id;
+  }
+
+  removeTask(id: number): void {
+    this.tasks.delete(id);
+  }
+
+  complete(id: number): void {
+    const task = this.tasks.get(id);
+    if (task) task.done = true;
+  }
+
+  uncomplete(id: number): void {
+    const task = this.tasks.get(id);
+    if (task) task.done = false;
+  }
+
+  // Estado de la lista como texto: "[x] tarea" o "[ ] tarea".
+  toText(): string {
+    if (this.tasks.size === 0) return "  (lista vacía)";
+    const lines = [...this.tasks.values()].map((task) => {
+      const mark = task.done ? "[x]" : "[ ]";
+      return `  ${mark} ${task.title}`;
+    });
+    return lines.join("\n");
+  }
+}
