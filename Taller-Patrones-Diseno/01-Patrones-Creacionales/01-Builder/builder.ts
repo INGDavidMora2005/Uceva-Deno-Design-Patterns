@@ -29,3 +29,32 @@
  * Más información: https://refactoring.guru/es/design-patterns/builder
  * EJECUTAR: deno run Taller-Patrones-Diseno/01-Patrones-Creacionales/01-Builder/builder.ts
  */
+
+/**
+ * PRODUCTO del patrón Builder: es el objeto complejo que se arma
+ * paso a paso. No conoce a los builders ni al director.
+ */
+class Pizza {
+  // Propiedades públicas porque los builders concretos las asignan
+  // directamente al ejecutar cada paso de la construcción.
+  size: string = "mediana";
+  dough: string = "tradicional";
+  sauce: string = "tomate";
+  toppings: string[] = [];
+  stuffedCrust: boolean = false;
+
+  /**
+   * Describe la pizza en español con todas sus características.
+   */
+  describe(): string {
+    const ingredients: string = this.toppings.length > 0
+      ? this.toppings.join(", ")
+      : "sin ingredientes extra";
+    const crust: string = this.stuffedCrust ? "sí" : "no";
+    const base: string =
+      `Pizza ${this.size}, masa ${this.dough}, salsa de ${this.sauce}`;
+
+    return `${base}, ingredientes: ${ingredients}, ` +
+      `borde relleno: ${crust}`;
+  }
+}
