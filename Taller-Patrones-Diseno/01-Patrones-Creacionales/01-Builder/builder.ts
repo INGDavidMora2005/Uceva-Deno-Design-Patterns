@@ -89,3 +89,63 @@ interface PizzaBuilder {
   /** Entrega la pizza terminada. */
   build(): Pizza;
 }
+
+/**
+ * CONSTRUCTOR CONCRETO del patrón: implementa los pasos de
+ * PizzaBuilder y mantiene internamente la pizza que se está armando.
+ */
+class MargaritaBuilder implements PizzaBuilder {
+  private pizza: Pizza = new Pizza();
+
+  constructor() {
+    this.reset();
+  }
+
+  /**
+   * Aplica la receta base de la margarita. Por eso la margarita y la
+   * carnívora, que se agregará después, parten de configuraciones
+   * distintas usando la misma interfaz.
+   */
+  reset(): this {
+    this.pizza = new Pizza();
+    this.pizza.dough = "delgada";
+    this.pizza.sauce = "tomate";
+    this.pizza.toppings = ["mozzarella", "albahaca"];
+    return this;
+  }
+
+  setSize(size: string): this {
+    this.pizza.size = size;
+    return this;
+  }
+
+  setDough(dough: string): this {
+    this.pizza.dough = dough;
+    return this;
+  }
+
+  setSauce(sauce: string): this {
+    this.pizza.sauce = sauce;
+    return this;
+  }
+
+  addTopping(topping: string): this {
+    this.pizza.toppings.push(topping);
+    return this;
+  }
+
+  setStuffedCrust(stuffedCrust: boolean): this {
+    this.pizza.stuffedCrust = stuffedCrust;
+    return this;
+  }
+
+  /**
+   * Guarda la pizza terminada y reinicia el builder. Así puede
+   * reutilizarse para otra pizza sin mezclar ingredientes.
+   */
+  build(): Pizza {
+    const finishedPizza: Pizza = this.pizza;
+    this.reset();
+    return finishedPizza;
+  }
+}
