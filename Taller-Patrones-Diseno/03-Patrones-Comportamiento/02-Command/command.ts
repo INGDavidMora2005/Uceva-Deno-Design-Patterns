@@ -133,3 +133,27 @@ class CompleteTaskCommand implements Command {
     this.list.uncomplete(this.taskId);
   }
 }
+
+// Invocador: ejecuta los comandos y los recuerda en pilas. Solo conoce la
+// interfaz Command, así que puede deshacer cualquier acción (actual o futura)
+// sin saber qué hace cada una ni cómo se revierte.
+class History {
+  private undoStack: Command[] = [];
+  private redoStack: Command[] = [];
+
+  execute(command: Command): void {
+    command.execute();
+    this.undoStack.push(command);
+  }
+
+  // Revierte el último comando y lo guarda para poder rehacerlo.
+  undo(): void {
+    const command = this.undoStack.pop();
+    if (!command) {
+      console.log("No hay nada para deshacer.");
+      return;
+    }
+    command.undo();
+    this.redoStack.push(command);
+  }
+}
