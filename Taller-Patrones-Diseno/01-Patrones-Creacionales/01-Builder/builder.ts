@@ -102,9 +102,9 @@ class MargaritaBuilder implements PizzaBuilder {
   }
 
   /**
-   * Aplica la receta base de la margarita. Por eso la margarita y la
-   * carnívora, que se agregará después, parten de configuraciones
-   * distintas usando la misma interfaz.
+   * Aplica la receta base de la margarita. Así, MargaritaBuilder y
+   * CarnivoraBuilder parten de recetas base distintas usando la
+   * misma interfaz PizzaBuilder.
    */
   reset(): this {
     this.pizza = new Pizza();
