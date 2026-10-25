@@ -213,3 +213,42 @@ class CarnivoraBuilder implements PizzaBuilder {
     return finishedPizza;
   }
 }
+
+/**
+ * DIRECTOR del patrón: conoce el orden de los pasos y define recetas
+ * reutilizables, pero no sabe cómo se construye cada pieza.
+ *
+ * Trabaja contra la interfaz PizzaBuilder, no contra clases concretas,
+ * por eso la misma receta produce resultados distintos según el
+ * builder (margarita o carnívora).
+ *
+ * Usar el director es opcional: el cliente también podría llamar
+ * directamente a los pasos del builder.
+ */
+class PizzaDirector {
+  private builder: PizzaBuilder;
+
+  constructor(builder: PizzaBuilder) {
+    this.builder = builder;
+  }
+
+  setBuilder(builder: PizzaBuilder): void {
+    this.builder = builder;
+  }
+
+  /** Prepara una pizza básica pequeña. */
+  makeBasicPizza(): Pizza {
+    return this.builder.reset().setSize("pequeña").build();
+  }
+
+  /** Prepara una pizza familiar con borde relleno y extras. */
+  makeFamilyPizza(): Pizza {
+    return this.builder
+      .reset()
+      .setSize("familiar")
+      .setStuffedCrust(true)
+      .addTopping("queso extra")
+      .addTopping("champiñones")
+      .build();
+  }
+}
