@@ -68,3 +68,38 @@ class KelvinSensor {
     return { value: this.kelvin, unit: "K" };
   }
 }
+
+// Redondea a 1 decimal, que es la precisión que muestra el monitor.
+const roundOneDecimal = (value: number) => Math.round(value * 10) / 10;
+
+// Adaptador #1: cumple TemperatureSensor y ENVUELVE (composición) a un
+// FahrenheitSensor. Traduce la interfaz (readFahrenheit -> getCelsius) y la
+// unidad (°F -> °C) sin tocar el código del tercero.
+class FahrenheitAdapter implements TemperatureSensor {
+  name: string;
+
+  constructor(private readonly sensor: FahrenheitSensor) {
+    this.name = `Sensor EE. UU. ${sensor.model}`;
+  }
+
+  getCelsius(): number {
+    const fahrenheit = this.sensor.readFahrenheit();
+    return roundOneDecimal((fahrenheit - 32) * 5 / 9);
+  }
+}
+
+// Adaptador #2: cumple TemperatureSensor y ENVUELVE a un KelvinSensor.
+// Traduce la interfaz (getReading con objeto -> getCelsius con número) y la
+// unidad (K -> °C) sin tocar el código del tercero.
+class KelvinAdapter implements TemperatureSensor {
+  name: string;
+
+  constructor(private readonly sensor: KelvinSensor) {
+    this.name = `Sensor laboratorio ${sensor.serial}`;
+  }
+
+  getCelsius(): number {
+    const reading = this.sensor.getReading();
+    return roundOneDecimal(reading.value - 273.15);
+  }
+}
