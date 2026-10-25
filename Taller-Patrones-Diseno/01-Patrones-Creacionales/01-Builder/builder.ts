@@ -30,6 +30,8 @@
  * EJECUTAR: deno run Taller-Patrones-Diseno/01-Patrones-Creacionales/01-Builder/builder.ts
  */
 
+import { COLORS } from "../../../helpers/colors.ts";
+
 /**
  * PRODUCTO del patrón Builder: es el objeto complejo que se arma
  * paso a paso. No conoce a los builders ni al director.
@@ -252,3 +254,64 @@ class PizzaDirector {
       .build();
   }
 }
+
+function main(): void {
+  console.log("%c=== 1. Uso directo del builder ===", COLORS.blue);
+
+  // El cliente controla el orden de los pasos y arma la pizza
+  // directamente, sin usar el director.
+  const customPizza: Pizza = new MargaritaBuilder()
+    .setSize("grande")
+    .setDough("integral")
+    .addTopping("aceitunas")
+    .setStuffedCrust(true)
+    .build();
+
+  console.log(customPizza.describe());
+
+  console.log(
+    "%c=== 2. Uso del director con MargaritaBuilder ===",
+    COLORS.green,
+  );
+
+  // El director aplica sus recetas reutilizables sobre el builder.
+  const director: PizzaDirector = new PizzaDirector(new MargaritaBuilder());
+  const basicMargarita: Pizza = director.makeBasicPizza();
+  const familyMargarita: Pizza = director.makeFamilyPizza();
+
+  console.log(basicMargarita.describe());
+  console.log(familyMargarita.describe());
+
+  console.log(
+    "%c=== 3. La misma receta con CarnivoraBuilder ===",
+    COLORS.purple,
+  );
+
+  // Al cambiar el builder, las mismas recetas del director producen
+  // pizzas distintas porque el director solo conoce la interfaz.
+  director.setBuilder(new CarnivoraBuilder());
+  const basicCarnivora: Pizza = director.makeBasicPizza();
+  const familyCarnivora: Pizza = director.makeFamilyPizza();
+
+  console.log(basicCarnivora.describe());
+  console.log(familyCarnivora.describe());
+
+  console.log("%c=== 4. Reutilización del builder ===", COLORS.orange);
+
+  // build() reinicia el builder, por lo que dos pizzas construidas
+  // seguidas no comparten ingredientes ni configuración.
+  const reuseBuilder: MargaritaBuilder = new MargaritaBuilder();
+  const firstPizza: Pizza = reuseBuilder
+    .setSize("mediana")
+    .addTopping("champiñones")
+    .build();
+  const secondPizza: Pizza = reuseBuilder
+    .setSize("grande")
+    .addTopping("aceitunas")
+    .build();
+
+  console.log(firstPizza.describe());
+  console.log(secondPizza.describe());
+}
+
+main();
