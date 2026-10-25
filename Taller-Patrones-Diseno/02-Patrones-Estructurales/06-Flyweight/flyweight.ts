@@ -31,6 +31,8 @@
  * EJECUTAR: deno run Taller-Patrones-Diseno/02-Patrones-Estructurales/06-Flyweight/flyweight.ts
  */
 
+import { COLORS } from "../../../helpers/colors.ts";
+
 /**
  * FLYWEIGHT del patrón: guarda el estado intrínseco (nombre, color y
  * textura), que es compartido por muchos árboles.
@@ -154,3 +156,60 @@ class Forest {
     return this.trees.length;
   }
 }
+
+function main(): void {
+  console.log("%c=== 1. Plantando el bosque ===", COLORS.blue);
+
+  // Cada árbol aporta su posición (estado extrínseco) y comparte su
+  // TreeType (estado intrínseco) con los demás árboles iguales.
+  const forest: Forest = new Forest();
+
+  for (let i = 0; i < 10000; i++) {
+    const x: number = i % 100;
+    const y: number = Math.floor(i / 100);
+    const variant: number = i % 3;
+
+    if (variant === 0) {
+      forest.plantTree(x, y, "Pino", "verde oscuro", "rugosa");
+    } else if (variant === 1) {
+      forest.plantTree(x, y, "Roble", "verde claro", "veteada");
+    } else {
+      forest.plantTree(x, y, "Abedul", "blanco", "lisa");
+    }
+  }
+
+  const treeCount: number = forest.getTreeCount();
+  console.log("Árboles plantados:", treeCount);
+
+  console.log("%c=== 2. Objetos pesados realmente creados ===", COLORS.green);
+
+  // Miles de árboles comparten unos pocos TreeType: el estado pesado
+  // vive una sola vez por combinación y no dentro de cada árbol.
+  const typeCount: number = TreeTypeFactory.getTypesCount();
+  const summary: string =
+    `${treeCount} árboles reutilizan solo ${typeCount} TreeType.`;
+  console.log(summary);
+
+  console.log("%c=== 3. Comparación sin Flyweight ===", COLORS.purple);
+
+  // Cuenta de textos, no una medición real de memoria.
+  const textsPerType: number = 3;
+  const withoutFlyweight: number = treeCount * textsPerType;
+  const withFlyweight: number = typeCount * textsPerType;
+  const savedTexts: number = withoutFlyweight - withFlyweight;
+
+  const comparison: string =
+    `Sin el patrón se guardarían ${withoutFlyweight} textos de tipo; ` +
+    `con el patrón, solo ${withFlyweight}. Se evitan ${savedTexts}.`;
+  console.log(comparison);
+
+  console.log("%c=== 4. Muestra del dibujo ===", COLORS.orange);
+
+  // draw() se llama una sola vez y solo se muestran tres árboles para
+  // no llenar la consola con miles de líneas.
+  const drawings: string[] = forest.draw();
+  const sample: string[] = drawings.slice(0, 3);
+  console.log(sample);
+}
+
+main();
