@@ -34,3 +34,29 @@
  *
  * EJECUTAR: deno run Taller-Patrones-Diseno/01-Patrones-Creacionales/02-Factory-Method/factory-method.ts
  */
+
+// Producto: lo único que conoce planDelivery. Gracias a esta interfaz,
+// Logistics no depende de camiones ni barcos concretos.
+interface Transport {
+  name: string;
+  // Devuelve un mensaje que describe cómo se hace la entrega.
+  deliver(origin: string, destination: string, cargoKg: number): string;
+}
+
+// Producto concreto: entrega por carretera en contenedor terrestre.
+class Truck implements Transport {
+  name = "Camión";
+
+  deliver(origin: string, destination: string, cargoKg: number): string {
+    return `${this.name}: ${cargoKg} kg por carretera de ${origin} a ${destination} en contenedor terrestre`;
+  }
+}
+
+// Producto concreto: entrega por mar en contenedor marítimo.
+class Ship implements Transport {
+  name = "Barco";
+
+  deliver(origin: string, destination: string, cargoKg: number): string {
+    return `${this.name}: ${cargoKg} kg por mar de ${origin} a ${destination} en contenedor marítimo`;
+  }
+}
