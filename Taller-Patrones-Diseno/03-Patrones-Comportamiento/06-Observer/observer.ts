@@ -56,3 +56,64 @@ interface Subject {
   unsubscribe(observer: Observer): void;
   notify(change: StoreChange): void;
 }
+
+// Es el sujeto observado: guarda el estado (precio y stock de un producto) y
+// avisa a los observadores cuando cambia, sin conocer sus clases concretas.
+class Store implements Subject {
+  // Lista privada de observadores suscritos; es privada para que nadie fuera de
+  // la tienda altere la suscripción a mano.
+  private observers: Observer[] = [];
+
+  constructor(
+    private product: string,
+    private price: number,
+    private stock: number,
+  ) {}
+
+  // Evita duplicados: suscribirse dos veces haría que el mismo observador
+  // recibiera la notificación repetida.
+  subscribe(observer: Observer): void {
+    if (!this.observers.includes(observer)) {
+      this.observers.push(observer);
+    }
+  }
+
+  // Quita por referencia para que un suscriptor pueda darse de baja sin afectar
+  // a los demás.
+  unsubscribe(observer: Observer): void {
+    this.observers = this.observers.filter((item) => item !== observer);
+  }
+
+  // Recorre la interfaz Observer, por eso la tienda no depende de ningún
+  // suscriptor concreto.
+  notify(change: StoreChange): void {
+    for (const observer of this.observers) {
+      observer.update(change);
+    }
+  }
+
+  // Es el punto donde cambia el estado, por eso dispara la notificación con el
+  // valor anterior y el nuevo.
+  setPrice(newPrice: number): void {
+    const oldValue = this.price;
+    this.price = newPrice;
+    this.notify({
+      product: this.product,
+      type: "price",
+      oldValue,
+      newValue: newPrice,
+    });
+  }
+
+  // Igual que setPrice: todo cambio de stock debe avisar a los suscriptores.
+  setStock(newStock: number): void {
+    const oldValue = this.stock;
+    this.stock = newStock;
+    this.notify({
+      product: this.product,
+      type: "stock",
+      oldValue,
+      newValue: newStock,
+    });
+  }
+}
