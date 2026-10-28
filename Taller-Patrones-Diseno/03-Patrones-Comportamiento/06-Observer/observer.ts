@@ -33,3 +33,26 @@
  *
  * EJECUTAR: deno run Taller-Patrones-Diseno/03-Patrones-Comportamiento/06-Observer/observer.ts
  */
+
+// Es el mensaje que viaja del sujeto a los observadores; así cada observador
+// sabe qué cambió sin tener que consultar a la tienda.
+interface StoreChange {
+  product: string;
+  type: "price" | "stock";
+  oldValue: number;
+  newValue: number;
+}
+
+// La tienda solo conoce esta interfaz, nunca las clases concretas de los
+// suscriptores (bajo acoplamiento).
+interface Observer {
+  update(change: StoreChange): void;
+}
+
+// Define cómo se agregan, se quitan y se avisa a los observadores en tiempo de
+// ejecución.
+interface Subject {
+  subscribe(observer: Observer): void;
+  unsubscribe(observer: Observer): void;
+  notify(change: StoreChange): void;
+}
