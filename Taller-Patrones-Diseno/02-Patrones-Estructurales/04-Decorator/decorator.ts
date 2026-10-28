@@ -74,3 +74,43 @@ abstract class NotifierDecorator implements Notifier {
     return this.wrapped.send(message);
   }
 }
+
+// Agrega la hora de envío al mensaje, para que quede registrado cuándo salió.
+class TimestampDecorator extends NotifierDecorator {
+  // La capa transforma el mensaje ANTES de delegar, por eso el decorador más
+  // externo es el primero en actuar.
+  override send(message: string): string {
+    const time = new Date().toLocaleTimeString("es-CO", { hour12: false });
+    const stamped = `[${time}] ${message}`;
+    return super.send(stamped);
+  }
+}
+
+// Simula comprimir el mensaje: no hace compresión real, solo normaliza los
+// espacios para que el ejemplo sea didáctico.
+class CompressDecorator extends NotifierDecorator {
+  // Transforma antes de delegar; el texto queda marcado como comprimido de
+  // forma simulada (no se reduce el tamaño real).
+  override send(message: string): string {
+    const compact = message.replace(/\s+/g, " ").trim();
+    const compressed = `[ZIP:${compact}]`;
+    return super.send(compressed);
+  }
+}
+
+// Simula cifrar el mensaje: es un cifrado César de +3, no un cifrado real y no
+// sirve como seguridad.
+class EncryptDecorator extends NotifierDecorator {
+  // Transforma antes de delegar. Solo se desplazan las letras sin tilde, así
+  // que números, espacios y símbolos permanecen intactos.
+  override send(message: string): string {
+    const shifted = message.replace(/[a-zA-Z]/g, (char) => {
+      const code = char.charCodeAt(0);
+      const base = code >= 97 ? 97 : 65;
+      const shiftedCode = ((code - base + 3) % 26) + base;
+      return String.fromCharCode(shiftedCode);
+    });
+    const encrypted = `[ENC:${shifted}]`;
+    return super.send(encrypted);
+  }
+}
