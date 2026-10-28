@@ -163,3 +163,54 @@ class Shipped implements OrderState {
     throw new Error("Un pedido enviado no se puede cancelar");
   }
 }
+
+// El pedido ya fue pagado: puede enviarse o cancelarse. Las demás acciones se
+// rechazan porque todavía no ha salido del almacén.
+class Paid implements OrderState {
+  readonly name = "Pagado";
+
+  pay(): void {
+    throw new Error("El pedido ya fue pagado");
+  }
+
+  // La transición la decide el propio estado: conoce el siguiente estado válido
+  // y se lo entrega al contexto, que solo se encarga de guardarlo.
+  ship(order: Order): void {
+    order.setState(new Shipped());
+  }
+
+  deliver(): void {
+    throw new Error("No se puede entregar un pedido que aún no fue enviado");
+  }
+
+  // Cancelar es válido mientras no se haya enviado; el propio estado indica el
+  // destino en lugar de que Order conozca la regla.
+  cancel(order: Order): void {
+    order.setState(new Cancelled());
+  }
+}
+
+// Estado inicial: el pedido espera el pago, así que solo puede pagarse o
+// cancelarse; enviarlo o entregarlo no tiene sentido todavía.
+class Pending implements OrderState {
+  readonly name = "Pendiente";
+
+  // La transición la decide el propio estado: conoce el siguiente estado válido
+  // y se lo entrega al contexto, que solo se encarga de guardarlo.
+  pay(order: Order): void {
+    order.setState(new Paid());
+  }
+
+  ship(): void {
+    throw new Error("No se puede enviar un pedido que aún no fue pagado");
+  }
+
+  deliver(): void {
+    throw new Error("No se puede entregar un pedido que aún no fue pagado");
+  }
+
+  // Se puede cancelar sin haber pagado; la regla vive aquí, no en el contexto.
+  cancel(order: Order): void {
+    order.setState(new Cancelled());
+  }
+}
