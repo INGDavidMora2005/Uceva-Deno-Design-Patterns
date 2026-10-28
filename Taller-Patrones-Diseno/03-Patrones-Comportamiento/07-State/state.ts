@@ -95,3 +95,71 @@ class Order {
     this.state.cancel(this);
   }
 }
+
+// Estado final: el pedido ya llegó al cliente y no admite más acciones; se
+// rechazan todas para proteger el cierre del ciclo de vida.
+class Delivered implements OrderState {
+  readonly name = "Entregado";
+
+  pay(): void {
+    throw new Error("Pedido entregado: no admite más acciones");
+  }
+
+  ship(): void {
+    throw new Error("Pedido entregado: no admite más acciones");
+  }
+
+  deliver(): void {
+    throw new Error("Pedido entregado: no admite más acciones");
+  }
+
+  cancel(): void {
+    throw new Error("Pedido entregado: no admite más acciones");
+  }
+}
+
+// Estado final: el pedido fue cancelado y no admite más acciones; así no se
+// puede "revivir" un pedido que ya terminó.
+class Cancelled implements OrderState {
+  readonly name = "Cancelado";
+
+  pay(): void {
+    throw new Error("Pedido cancelado: no admite más acciones");
+  }
+
+  ship(): void {
+    throw new Error("Pedido cancelado: no admite más acciones");
+  }
+
+  deliver(): void {
+    throw new Error("Pedido cancelado: no admite más acciones");
+  }
+
+  cancel(): void {
+    throw new Error("Pedido cancelado: no admite más acciones");
+  }
+}
+
+// El pedido va en camino: solo puede entregarse, porque ya salió del almacén y
+// ya no tiene sentido pagarlo ni cancelarlo.
+class Shipped implements OrderState {
+  readonly name = "Enviado";
+
+  pay(): void {
+    throw new Error("El pedido ya fue pagado y enviado");
+  }
+
+  ship(): void {
+    throw new Error("El pedido ya fue enviado");
+  }
+
+  // La transición la decide el propio estado: conoce el siguiente estado válido
+  // y se lo entrega al contexto, que solo se encarga de guardarlo.
+  deliver(order: Order): void {
+    order.setState(new Delivered());
+  }
+
+  cancel(): void {
+    throw new Error("Un pedido enviado no se puede cancelar");
+  }
+}
