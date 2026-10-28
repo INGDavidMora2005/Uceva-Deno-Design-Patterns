@@ -58,3 +58,19 @@ class BasicNotifier implements Notifier {
     return message;
   }
 }
+
+// Es el decorador base: implementa la misma interfaz Notifier y guarda una
+// referencia a otro Notifier al que le delega el trabajo. Es la pieza que
+// permite apilar capas, porque lo envuelto puede ser un BasicNotifier u otro
+// decorador.
+abstract class NotifierDecorator implements Notifier {
+  // Recibe cualquier Notifier (composición, no herencia), por eso las capas son
+  // intercambiables y apilables en cualquier orden.
+  constructor(protected wrapped: Notifier) {}
+
+  // Por defecto solo delega; los decoradores concretos lo sobrescriben para
+  // transformar el mensaje antes de delegar.
+  send(message: string): string {
+    return this.wrapped.send(message);
+  }
+}
