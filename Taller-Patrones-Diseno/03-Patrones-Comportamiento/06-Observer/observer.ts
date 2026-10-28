@@ -151,3 +151,33 @@ class AppSubscriber implements Observer {
     console.log(`%c${message}`, COLORS.purple);
   }
 }
+
+// Código cliente: crea la tienda y los suscriptores, y demuestra la suscripción,
+// la notificación automática de los cambios y la baja de un observador.
+function main(): void {
+  const store = new Store("Teclado mecánico", 120000, 10);
+  const emailSubscriber = new EmailSubscriber("juan@correo.com");
+  const appSubscriber = new AppSubscriber("Juan");
+
+  console.log("%c=== 1. Suscripción de dos observadores ===", COLORS.cyan);
+  store.subscribe(emailSubscriber);
+  store.subscribe(appSubscriber);
+  store.subscribe(emailSubscriber);
+  console.log("Se intentó suscribir de nuevo al correo: no se duplica");
+
+  console.log("%c=== 2. Cambio de precio (avisa a los dos) ===", COLORS.cyan);
+  store.setPrice(99000);
+
+  console.log("%c=== 3. Cambio de stock (avisa a los dos) ===", COLORS.cyan);
+  store.setStock(3);
+
+  console.log("%c=== 4. Baja del suscriptor de correo ===", COLORS.cyan);
+  store.unsubscribe(emailSubscriber);
+  console.log("El suscriptor de correo se dio de baja: ya no recibirá avisos");
+
+  console.log("%c=== 5. Nuevo cambio (solo avisa a la app) ===", COLORS.cyan);
+  store.setPrice(89000);
+  console.log("Solo el suscriptor de la app recibió este último aviso.");
+}
+
+main();
