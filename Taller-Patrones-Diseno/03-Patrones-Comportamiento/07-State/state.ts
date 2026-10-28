@@ -35,3 +35,63 @@
  *
  * EJECUTAR: deno run Taller-Patrones-Diseno/03-Patrones-Comportamiento/07-State/state.ts
  */
+
+import { COLORS } from "../../../helpers/colors.ts";
+
+// Es el contrato común de todos los estados: cada estado decide qué acciones
+// permite y a qué estado transita, por eso Order no necesita condicionales.
+interface OrderState {
+  readonly name: string;
+  pay(order: Order): void;
+  ship(order: Order): void;
+  deliver(order: Order): void;
+  cancel(order: Order): void;
+}
+
+// Es el contexto: guarda el estado actual y delega en él las acciones, sin
+// if/switch sobre el estado. No sabe qué transiciones son válidas, eso lo
+// decide cada estado concreto.
+class Order {
+  private state: OrderState;
+
+  // Recibe el estado inicial por parámetro para que el contexto no dependa de
+  // ninguna clase concreta de estado.
+  constructor(readonly id: number, initialState: OrderState) {
+    this.state = initialState;
+  }
+
+  // Es el punto único por donde cambia el estado; por eso registra la
+  // transición y así se puede seguir el ciclo de vida del pedido.
+  setState(newState: OrderState): void {
+    const orderLabel = `Pedido #${this.id}`;
+    const transition = `${this.state.name} → ${newState.name}`;
+    const message = `${orderLabel}: ${transition}`;
+    console.log(`%c${message}`, COLORS.cyan);
+    this.state = newState;
+  }
+
+  // Expone el nombre del estado para mostrarlo sin revelar la clase concreta.
+  getStateName(): string {
+    return this.state.name;
+  }
+
+  // Solo delega en el estado actual: él decide si la acción es válida.
+  pay(): void {
+    this.state.pay(this);
+  }
+
+  // Solo delega en el estado actual: él decide si la acción es válida.
+  ship(): void {
+    this.state.ship(this);
+  }
+
+  // Solo delega en el estado actual: él decide si la acción es válida.
+  deliver(): void {
+    this.state.deliver(this);
+  }
+
+  // Solo delega en el estado actual: él decide si la acción es válida.
+  cancel(): void {
+    this.state.cancel(this);
+  }
+}
