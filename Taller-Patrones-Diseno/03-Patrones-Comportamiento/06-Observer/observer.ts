@@ -34,6 +34,8 @@
  * EJECUTAR: deno run Taller-Patrones-Diseno/03-Patrones-Comportamiento/06-Observer/observer.ts
  */
 
+import { COLORS } from "../../../helpers/colors.ts";
+
 // Es el mensaje que viaja del sujeto a los observadores; así cada observador
 // sabe qué cambió sin tener que consultar a la tienda.
 interface StoreChange {
@@ -115,5 +117,37 @@ class Store implements Subject {
       oldValue,
       newValue: newStock,
     });
+  }
+}
+
+// Es un observador concreto: reacciona al cambio a su manera (simulando un
+// correo) y la tienda no sabe que existe, solo lo trata como un Observer.
+class EmailSubscriber implements Observer {
+  constructor(private email: string) {}
+
+  // Traduce el cambio a un mensaje de correo legible según el tipo recibido.
+  update(change: StoreChange): void {
+    const label = change.type === "price" ? "precio" : "stock";
+    const unit = change.type === "stock" ? " unidades" : "";
+    const values = `${change.oldValue} → ${change.newValue}${unit}`;
+    const message =
+      `✉️ Correo a ${this.email} | ${change.product} | ${label}: ${values}`;
+    console.log(`%c${message}`, COLORS.blue);
+  }
+}
+
+// Es otro observador concreto: usa un canal y un color distintos para que se
+// distinga del correo, sin que la tienda necesite saberlo.
+class AppSubscriber implements Observer {
+  constructor(private user: string) {}
+
+  // Mismo criterio que el correo, pero con el formato de una notificación push.
+  update(change: StoreChange): void {
+    const label = change.type === "price" ? "precio" : "stock";
+    const unit = change.type === "stock" ? " unidades" : "";
+    const values = `${change.oldValue} → ${change.newValue}${unit}`;
+    const message =
+      `🔔 Push a ${this.user} | ${change.product} | ${label}: ${values}`;
+    console.log(`%c${message}`, COLORS.purple);
   }
 }
