@@ -114,3 +114,58 @@ class EncryptDecorator extends NotifierDecorator {
     return super.send(encrypted);
   }
 }
+
+// Es el código cliente: recibe un Notifier sin saber si es básico o está
+// decorado, y muestra el mensaje final que se envió; así se demuestra que el
+// cliente solo depende de la interfaz.
+function showResult(notifier: Notifier, message: string): void {
+  const result = notifier.send(message);
+  const text = `→ Mensaje final: ${result}`;
+  console.log(`%c${text}`, COLORS.cyan);
+}
+
+// Código cliente: construye notificadores con distintas capas apiladas y
+// demuestra que el orden de las capas cambia el resultado.
+function main(): void {
+  const message = "Hola   equipo,  pedido 123 enviado";
+  const original = `Mensaje original: ${message}`;
+  console.log(`%c${original}`, COLORS.yellow);
+
+  console.log(
+    "%c=== 1. Sin decoradores (solo BasicNotifier) ===",
+    COLORS.green,
+  );
+  const basic = new BasicNotifier();
+  showResult(basic, message);
+
+  console.log("%c=== 2. Una capa: solo marca de tiempo ===", COLORS.green);
+  const withTime = new TimestampDecorator(new BasicNotifier());
+  showResult(withTime, message);
+
+  const titleA = "=== 3. Pila A: Cifrar(Comprimir(Hora(Básico))) ===";
+  console.log(`%c${titleA}`, COLORS.green);
+  const stackA = new EncryptDecorator(
+    new CompressDecorator(new TimestampDecorator(new BasicNotifier())),
+  );
+  showResult(stackA, message);
+  console.log(
+    "El decorador más externo actúa primero: cifra, luego comprime y al final agrega la hora, así la hora queda legible por fuera.",
+  );
+
+  const titleB =
+    "=== 4. Pila B: Hora(Comprimir(Cifrar(Básico))) — mismas capas, otro orden ===";
+  console.log(`%c${titleB}`, COLORS.green);
+  const stackB = new TimestampDecorator(
+    new CompressDecorator(new EncryptDecorator(new BasicNotifier())),
+  );
+  showResult(stackB, message);
+  const explanationB =
+    "Primero se agrega la hora, luego se comprime y al final se cifra todo: la etiqueta ZIP se transforma en CLS porque quedó dentro de la capa de cifrado. Los dígitos de la hora no cambian porque el cifrado simulado solo desplaza letras.";
+  console.log(explanationB);
+
+  console.log(
+    "Mismas capas, distinto orden → distinto resultado, sin crear una sola subclase nueva.",
+  );
+}
+
+main();
