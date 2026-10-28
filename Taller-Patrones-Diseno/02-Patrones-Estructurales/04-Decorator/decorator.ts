@@ -35,3 +35,26 @@
  *
  * EJECUTAR: deno run Taller-Patrones-Diseno/02-Patrones-Estructurales/04-Decorator/decorator.ts
  */
+
+import { COLORS } from "../../../helpers/colors.ts";
+
+// Es el contrato común que comparten el componente concreto y todos los
+// decoradores; por eso el cliente puede usar cualquiera sin saber cuántas capas
+// tiene debajo.
+interface Notifier {
+  // Devuelve el mensaje final que se envió, para poder ver en la demo qué
+  // transformaciones se aplicaron.
+  send(message: string): string;
+}
+
+// Es el componente concreto: el objeto base que sí envía el mensaje, sin
+// ninguna capa extra; los decoradores lo envolverán.
+class BasicNotifier implements Notifier {
+  // Envía el mensaje tal cual y lo devuelve sin cambios, para que las capas que
+  // lo envuelvan puedan seguir transformándolo.
+  send(message: string): string {
+    const text = `📨 Enviando: ${message}`;
+    console.log(`%c${text}`, COLORS.blue);
+    return message;
+  }
+}
