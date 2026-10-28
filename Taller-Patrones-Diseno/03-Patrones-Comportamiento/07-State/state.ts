@@ -214,3 +214,65 @@ class Pending implements OrderState {
     order.setState(new Cancelled());
   }
 }
+
+// Ejecuta una acción del pedido y, si el estado la rechaza con un Error, muestra
+// el mensaje en vez de detener la demo.
+function attempt(description: string, action: () => void): void {
+  try {
+    action();
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
+    const message = `❌ ${description} → ${detail}`;
+    console.log(`%c${message}`, COLORS.red);
+  }
+}
+
+// Código cliente: crea tres pedidos y demuestra el flujo válido junto con las
+// transiciones inválidas que cada estado rechaza.
+function main(): void {
+  const title1 =
+    "=== 1. Flujo normal: Pendiente → Pagado → Enviado → Entregado ===";
+  console.log(`%c${title1}`, COLORS.green);
+  const order1 = new Order(1, new Pending());
+  const created1 =
+    `Pedido #1 creado con estado inicial: ${order1.getStateName()}`;
+  console.log(`%c${created1}`, COLORS.yellow);
+  attempt("Pagar pedido #1", () => order1.pay());
+  attempt("Enviar pedido #1", () => order1.ship());
+  attempt("Entregar pedido #1", () => order1.deliver());
+
+  const title2 = "=== 2. Pedido entregado: estado final, rechaza todo ===";
+  console.log(`%c${title2}`, COLORS.green);
+  attempt("Cancelar pedido #1 (ya entregado)", () => order1.cancel());
+  attempt("Pagar pedido #1 (ya entregado)", () => order1.pay());
+
+  const title3 = "=== 3. Transiciones inválidas desde Pendiente ===";
+  console.log(`%c${title3}`, COLORS.green);
+  const order2 = new Order(2, new Pending());
+  const created2 =
+    `Pedido #2 creado con estado inicial: ${order2.getStateName()}`;
+  console.log(`%c${created2}`, COLORS.yellow);
+  attempt("Enviar pedido #2 sin pagar", () => order2.ship());
+  attempt("Entregar pedido #2 sin pagar", () => order2.deliver());
+
+  const title4 = "=== 4. Cancelación y estado final ===";
+  console.log(`%c${title4}`, COLORS.green);
+  attempt("Cancelar pedido #2", () => order2.cancel());
+  attempt("Pagar pedido #2 (ya cancelado)", () => order2.pay());
+
+  const title5 = "=== 5. Un pedido enviado ya no se puede cancelar ===";
+  console.log(`%c${title5}`, COLORS.green);
+  const order3 = new Order(3, new Pending());
+  const created3 =
+    `Pedido #3 creado con estado inicial: ${order3.getStateName()}`;
+  console.log(`%c${created3}`, COLORS.yellow);
+  attempt("Pagar pedido #3", () => order3.pay());
+  attempt("Enviar pedido #3", () => order3.ship());
+  attempt("Cancelar pedido #3 (ya enviado)", () => order3.cancel());
+
+  const summary =
+    `Estado final → pedido #1: ${order1.getStateName()} | pedido #2: ${order2.getStateName()} | pedido #3: ${order3.getStateName()}`;
+  console.log(`%c${summary}`, COLORS.white);
+}
+
+main();
