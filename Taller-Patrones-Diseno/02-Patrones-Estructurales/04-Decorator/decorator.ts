@@ -59,3 +59,34 @@ class BasicRoom implements Booking {
     return "Habitación estándar";
   }
 }
+
+/**
+ * DECORADOR BASE del patrón: implementa la misma interfaz Booking que
+ * el componente y guarda una referencia a otra Booking (composición),
+ * a la que delega todo por defecto.
+ *
+ * Es abstracta porque no se usa sola: solo tiene sentido como base de
+ * los decoradores concretos.
+ *
+ * La propiedad es protected para que los decoradores concretos que la
+ * extiendan puedan usarla.
+ *
+ * Usar composición en vez de herencia por cada combinación es la clave
+ * del patrón: cualquier Booking, sea una habitación simple u otro
+ * decorador, puede envolverse.
+ */
+abstract class BookingDecorator implements Booking {
+  protected readonly wrapped: Booking;
+
+  constructor(wrapped: Booking) {
+    this.wrapped = wrapped;
+  }
+
+  cost(): number {
+    return this.wrapped.cost();
+  }
+
+  description(): string {
+    return this.wrapped.description();
+  }
+}
