@@ -20,7 +20,7 @@ Este taller aplica diez patrones de diseño de las categorías creacional, estru
 | Factory Method | Creacional | Juan Pablo Devia | [factory-method.ts](Taller-Patrones-Diseno/01-Patrones-Creacionales/02-Factory-Method/factory-method.ts) | Envíos por carretera y mar |
 | Singleton | Creacional | David Mora Duque | [singleton.ts](Taller-Patrones-Diseno/01-Patrones-Creacionales/06-Singleton/singleton.ts) | Logger único de la aplicación |
 | Adapter | Estructural | Juan Pablo Devia | [adapter.ts](Taller-Patrones-Diseno/02-Patrones-Estructurales/01-Adapter/adapter.ts) | Sensores de temperatura de terceros |
-| Decorator | Estructural | Juan Diego Rodriguez | [decorator.ts](Taller-Patrones-Diseno/02-Patrones-Estructurales/04-Decorator/decorator.ts) | Notificaciones con marca, compresión y cifrado |
+| Decorator | Estructural | David Mora Duque (versión inicial: Juan Diego Rodriguez) | [decorator.ts](Taller-Patrones-Diseno/02-Patrones-Estructurales/04-Decorator/decorator.ts) | Reserva de hotel con servicios extra |
 | Flyweight | Estructural | David Mora Duque | [flyweight.ts](Taller-Patrones-Diseno/02-Patrones-Estructurales/06-Flyweight/flyweight.ts) | Bosque con miles de árboles |
 | Command | Comportamiento | Juan Pablo Devia | [command.ts](Taller-Patrones-Diseno/03-Patrones-Comportamiento/02-Command/command.ts) | Lista de tareas con deshacer y rehacer |
 | Observer | Comportamiento | Juan Diego Rodriguez | [observer.ts](Taller-Patrones-Diseno/03-Patrones-Comportamiento/06-Observer/observer.ts) | Cambios de precio y stock |
@@ -47,7 +47,7 @@ Una bodega de cadena de frío monitorea sensores de terceros que reportan en gra
 
 ### Decorator
 
-Un sistema de mensajería necesita agregar marca de tiempo, compresión y cifrado en cualquier orden. `NotifierDecorator` envuelve a otro `Notifier`; `TimestampDecorator`, `CompressDecorator` y `EncryptDecorator` apilan responsabilidades sobre `BasicNotifier` sin crear una subclase por combinación.
+Una reserva parte de una habitación con tarifa base y el cliente suma desayuno, parqueadero o spa en cualquier combinación. `Booking` es la interfaz común, `BasicRoom` el componente, `BookingDecorator` el decorador base y `BreakfastDecorator`, `ParkingDecorator` y `SpaDecorator` los decoradores concretos, que se apilan sin crear una subclase por combinación.
 
 ### Flyweight
 
