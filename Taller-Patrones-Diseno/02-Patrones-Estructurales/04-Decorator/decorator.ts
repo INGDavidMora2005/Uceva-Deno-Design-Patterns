@@ -90,3 +90,50 @@ abstract class BookingDecorator implements Booking {
     return this.wrapped.description();
   }
 }
+
+/**
+ * DECORADORES CONCRETOS: cada uno agrega UNA sola responsabilidad (un
+ * servicio) sumando su costo y descripción a los de la reserva que
+ * envuelve.
+ *
+ * Usan super.cost() y super.description() para obtener lo que ya tenía
+ * la reserva envuelta y luego añaden lo suyo.
+ *
+ * Como todos implementan Booking, se pueden apilar en cualquier orden y
+ * combinación sin crear una subclase por cada una.
+ */
+class BreakfastDecorator extends BookingDecorator {
+  private readonly price: number = 25000;
+
+  override cost(): number {
+    return super.cost() + this.price;
+  }
+
+  override description(): string {
+    return super.description() + " + Desayuno";
+  }
+}
+
+class ParkingDecorator extends BookingDecorator {
+  private readonly price: number = 15000;
+
+  override cost(): number {
+    return super.cost() + this.price;
+  }
+
+  override description(): string {
+    return super.description() + " + Parqueadero";
+  }
+}
+
+class SpaDecorator extends BookingDecorator {
+  private readonly price: number = 80000;
+
+  override cost(): number {
+    return super.cost() + this.price;
+  }
+
+  override description(): string {
+    return super.description() + " + Spa";
+  }
+}
