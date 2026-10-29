@@ -30,3 +30,32 @@
  * Más información: https://refactoring.guru/es/design-patterns/decorator
  * EJECUTAR: deno run Taller-Patrones-Diseno/02-Patrones-Estructurales/04-Decorator/decorator.ts
  */
+
+/**
+ * INTERFAZ COMÚN (componente) del patrón: el componente concreto y
+ * todos los decoradores la implementan. Por eso el cliente puede
+ * tratar una habitación simple o una reserva con muchos servicios
+ * exactamente igual.
+ */
+interface Booking {
+  cost(): number;
+  description(): string;
+}
+
+/**
+ * COMPONENTE CONCRETO: el objeto base con la tarifa, que los
+ * decoradores van a envolver sin modificarlo.
+ *
+ * Los valores están en pesos colombianos (COP).
+ */
+class BasicRoom implements Booking {
+  private readonly baseRate: number = 180000;
+
+  cost(): number {
+    return this.baseRate;
+  }
+
+  description(): string {
+    return "Habitación estándar";
+  }
+}
