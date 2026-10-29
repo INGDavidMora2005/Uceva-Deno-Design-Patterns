@@ -31,6 +31,8 @@
  * EJECUTAR: deno run Taller-Patrones-Diseno/02-Patrones-Estructurales/04-Decorator/decorator.ts
  */
 
+import { COLORS } from "../../../helpers/colors.ts";
+
 /**
  * INTERFAZ COMÚN (componente) del patrón: el componente concreto y
  * todos los decoradores la implementan. Por eso el cliente puede
@@ -137,3 +139,62 @@ class SpaDecorator extends BookingDecorator {
     return super.description() + " + Spa";
   }
 }
+
+function formatCop(value: number): string {
+  return "$" + value.toLocaleString("es-CO") + " COP";
+}
+
+/**
+ * Código cliente: solo conoce la interfaz Booking, no las clases
+ * concretas, así puede imprimir cualquier combinación de decoradores.
+ */
+function printBooking(booking: Booking): void {
+  console.log(booking.description());
+  console.log("Total: " + formatCop(booking.cost()));
+}
+
+function main(): void {
+  console.log("%c=== 1. Habitación sin servicios ===", COLORS.blue);
+
+  // El cliente solo usa Booking: puede recibir la habitación base o
+  // cualquier combinación de decoradores sin cambiar su código.
+  const room: Booking = new BasicRoom();
+  printBooking(room);
+
+  console.log("%c=== 2. Una capa: desayuno ===", COLORS.green);
+
+  // Un decorador envuelve al componente y le añade su servicio.
+  const withBreakfast: Booking = new BreakfastDecorator(new BasicRoom());
+  printBooking(withBreakfast);
+
+  console.log(
+    "%c=== 3. Pila A: Desayuno, Parqueadero y Spa ===",
+    COLORS.purple,
+  );
+
+  // Cada decorador envuelve al anterior y la combinación se arma en
+  // tiempo de ejecución, sin crear una subclase para esta pila.
+  const pileA: Booking = new SpaDecorator(
+    new ParkingDecorator(new BreakfastDecorator(new BasicRoom())),
+  );
+  printBooking(pileA);
+
+  console.log(
+    "%c=== 4. Pila B: mismos servicios, otro orden ===",
+    COLORS.orange,
+  );
+
+  // Los mismos servicios en otro orden cuestan lo mismo, pero cambian
+  // el detalle de la factura; no hace falta ninguna subclase nueva.
+  const pileB: Booking = new BreakfastDecorator(
+    new SpaDecorator(new ParkingDecorator(new BasicRoom())),
+  );
+  printBooking(pileB);
+
+  console.log(
+    "El costo es el mismo, pero el orden de las capas cambia el " +
+      "detalle de la factura sin crear ninguna subclase nueva.",
+  );
+}
+
+main();
